@@ -13,7 +13,7 @@ datasource db {
 model Time {
   nome               String
   complemento        String
-  escudo             String
+  escudo             String?
   tecnico            String
   estadio            String
   cidade             String
@@ -50,10 +50,10 @@ model Jogador {
   nome             String
   apelido          String
   posicao          String
-  foto             String
+  foto             String?
   time_nome        String
   time_complemento String
-  time_anterior    String
+  time_anterior    String?
   data_nascimento  String
   nacionalidade    String
   suspenso         Boolean     @default(false)
