@@ -1,0 +1,138 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Time {
+  nome               String
+  complemento        String
+  escudo             String
+  tecnico            String
+  estadio            String
+  cidade             String
+  vitorias           Int             @default(0)
+  empates            Int             @default(0)
+  derrotas           Int             @default(0)
+  Partidas_Mandate   Partida[]       @relation("Mandante")
+  Partidas_Visitante Partida[]       @relation("Visitante")
+  Jogador            Jogador[]
+  Substituicoes      Substituicoes[]
+
+  @@id([nome, complemento])
+}
+
+model Partida {
+  num_partida           Int             @id @default(autoincrement())
+  mandante_nome         String
+  mandante_complemento  String
+  visitante_nome        String
+  visitante_complemento String
+  rodada                Int
+  data_hora             String
+  arbitros              String
+  local                 String
+  time_mandante         Time            @relation("Mandante", fields: [mandante_nome, mandante_complemento], references: [nome, complemento])
+  time_visitante        Time            @relation("Visitante", fields: [visitante_nome, visitante_complemento], references: [nome, complemento])
+  Gol                   Gol[]
+  Falta                 Falta[]
+  Substituicoes         Substituicoes[]
+  Joga                  Joga[]
+}
+
+model Jogador {
+  nome             String
+  apelido          String
+  posicao          String
+  foto             String
+  time_nome        String
+  time_complemento String
+  time_anterior    String
+  data_nascimento  String
+  nacionalidade    String
+  suspenso         Boolean     @default(false)
+  time             Time        @relation(fields: [time_nome, time_complemento], references: [nome, complemento])
+  Gol              Gol[]       @relation("Gol")
+  Assistencia      Gol[]       @relation("Assistencia")
+  Time_Pass        Time_Pass[]
+  Joga             Joga[]
+
+  @@id([nome, apelido])
+}
+
+model Gol {
+  tempo                       Int
+  num_partida                 Int
+  jogador_gol_nome            String
+  jogador_gol_apelido         String
+  jogador_assistencia_nome    String
+  jogador_assistencia_apelido String
+  tipo                        String
+  time                        String
+  minuto                      Int
+
+  partida             Partida @relation(fields: [num_partida], references: [num_partida])
+  jogador_gol         Jogador @relation("Gol", fields: [jogador_gol_nome, jogador_gol_apelido], references: [nome, apelido])
+  jogador_assistencia Jogador @relation("Assistencia", fields: [jogador_assistencia_nome, jogador_assistencia_apelido], references: [nome, apelido])
+
+  @@id([tempo, num_partida])
+}
+
+model Falta {
+  tempo                Int
+  time_faltoso         String
+  participante_faltoso String
+  tipo_falta           String
+  cartao               String
+  num_partida          Int
+
+  partida Partida @relation(fields: [num_partida], references: [num_partida])
+
+  @@id([tempo, num_partida])
+}
+
+model Time_Pass {
+  nome             String
+  complemento      String
+  nome_jogador     String
+  apellido_jogador String
+
+  jogador Jogador @relation(fields: [nome_jogador, apellido_jogador], references: [nome, apelido])
+
+  @@id([nome, complemento])
+}
+
+model Substituicoes {
+  id                    Int    @id
+  nome_jogador_entra    String
+  nome_jogador_sai      String
+  apelido_jogador_entra String
+  apelido_jogador_sai   String
+  tempo_partida         Int
+  num_partida           Int
+  nome_time             String
+  complemento_time      String
+
+  time    Time    @relation(fields: [nome_time, complemento_time], references: [nome, complemento])
+  partida Partida @relation(fields: [num_partida], references: [num_partida])
+  Joga    Joga[]
+}
+
+model Joga {
+  id               Int    @id
+  nome_jogador     String
+  apelido_jogador  String
+  posicao_jogador  String
+  num_partida      Int
+  substituicoes_id Int
+
+  jogador       Jogador       @relation(fields: [nome_jogador, apelido_jogador], references: [nome, apelido])
+  partida       Partida       @relation(fields: [num_partida], references: [num_partida])
+  substituicoes Substituicoes @relation(fields: [substituicoes_id], references: [id])
+}
