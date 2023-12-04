@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  url      = "file:./dev.db"
 }
 
 model Time {
@@ -54,7 +54,7 @@ model Jogador {
   time_nome        String
   time_complemento String
   time_anterior    String?
-  data_nascimento  String
+  idade            String
   nacionalidade    String
   suspenso         Boolean     @default(false)
   time             Time        @relation(fields: [time_nome, time_complemento], references: [nome, complemento])

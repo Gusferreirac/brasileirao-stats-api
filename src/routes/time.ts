@@ -9,6 +9,6 @@ export async function teamHandler(app: FastifyInstance){
         } catch(error){
             console.error(error);
             reply.status(500).send('Internal server error')
-        } 
+        }
     })
 }
